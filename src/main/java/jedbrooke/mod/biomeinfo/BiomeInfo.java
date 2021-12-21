@@ -10,8 +10,24 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 
+import java.io.*;
+
 public class BiomeInfo implements ClientModInitializer
 {
+
+	int counter = 1;
+	static final int INTERVAL = 100;
+	BufferedWriter out;
+
+	public BiomeInfo() {
+		try {
+			out = new BufferedWriter(new FileWriter("biomeslist.txt",true));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+
 	@Override
 	public void onInitializeClient()
 	{
@@ -30,12 +46,21 @@ public class BiomeInfo implements ClientModInitializer
 
 						if(biome != null)
 						{
-							TranslatableText biomeName = new TranslatableText(Util.createTranslationKey("biome", mc.world.getRegistryManager().get(Registry.BIOME_KEY).getId(biome)));
+							if (counter % INTERVAL == 0) {
+								System.out.println(mc.player.getEntityWorld().toString());
+								String biome_name = mc.world.getRegistryManager().get(Registry.BIOME_KEY).getId(biome).toString();
+								String entry = pos.getX() + "," + pos.getY() + "," + pos.getZ() + "," + biome_name;
+								try{
+									out.write(entry + "\n"s
+									);
+									out.flush();
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
 
-							matrixStack.push();
-							matrixStack.scale(1,1,1);
-							mc.textRenderer.drawWithShadow(matrixStack, biomeName, 3, 3, 0xFFFFFFFF);
-							matrixStack.pop();
+								counter = 0;
+							}
+							counter++;
 						}
 					}
 				}
